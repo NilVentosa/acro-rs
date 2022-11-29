@@ -37,6 +37,14 @@ fn default_columns() -> TestResult {
 }
 
 #[test]
+fn partial_match() -> TestResult {
+    run_acro(
+        &["NAT", "-f", DEFAULT_COLUMNS_FILE],
+        String::from(NATO_RESULT),
+    )
+}
+
+#[test]
 fn different_columns() -> TestResult {
     run_acro(
         &[NATO_ACR, "-f", DIFFERENT_COLUMNS_FILE, "-a", "2", "-d", "3"],
