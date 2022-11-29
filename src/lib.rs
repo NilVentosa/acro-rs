@@ -20,7 +20,7 @@ pub struct Entry {
 }
 
 impl Entry {
-    fn print_entry(&self) {
+    fn print(&self) {
         println!("- {}: {}", self.acronym, self.definition);
     }
 }
@@ -75,7 +75,7 @@ pub fn run(config: Config) -> MyResult<()> {
     let other_entries = find_matching_entries(entries, config.acronym);
 
     for entry in other_entries {
-        entry.print_entry();
+        entry.print();
     }
 
     Ok(())

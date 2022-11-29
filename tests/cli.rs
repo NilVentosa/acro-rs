@@ -7,7 +7,7 @@ const EMPTY: &str = "tests/inputs/empty.csv";
 const DEFAULT_COLUMNS_FILE: &str = "tests/inputs/def.csv";
 const DIFFERENT_COLUMNS_FILE: &str = "tests/inputs/diff.csv";
 
-const NATO_DESC: &str = "North Atlantic Treaty Organization";
+const NATO_RESULT: &str = "- NATO: North Atlantic Treaty Organization\n";
 const NATO_ACR: &str = "NAto";
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -32,23 +32,23 @@ fn empty() -> TestResult {
 fn default_columns() -> TestResult {
     run_acro(
         &[NATO_ACR, "-f", DEFAULT_COLUMNS_FILE],
-        String::from(NATO_DESC),
+        String::from(NATO_RESULT),
     )
 }
 
 #[test]
 fn different_columns() -> TestResult {
     run_acro(
-        &[NATO_ACR, "-f", DIFFERENT_COLUMNS_FILE, "-a 2 -d 3"],
-        String::from(NATO_DESC),
+        &[NATO_ACR, "-f", DIFFERENT_COLUMNS_FILE, "-a", "2", "-d", "3"],
+        String::from(NATO_RESULT),
     )
 }
 
 #[test]
 fn all_arguments() -> TestResult {
     run_acro(
-        &[NATO_ACR, "-f", DEFAULT_COLUMNS_FILE, "-a 1 -d 2"],
-        String::from(NATO_DESC),
+        &[NATO_ACR, "-f", DEFAULT_COLUMNS_FILE, "-a", "1", "-d", "2"],
+        String::from(NATO_RESULT),
     )
 }
 
