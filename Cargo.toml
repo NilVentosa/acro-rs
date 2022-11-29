@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 clap = "4.0.26"
+csv = "1.1"
 
 [dev-dependencies]
 assert_cmd = "2"
