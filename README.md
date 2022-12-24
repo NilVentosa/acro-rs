@@ -8,13 +8,16 @@ Arguments:
 
 Options:  
   - -f, --file <file>                     the csv file with the acronyms and definitions  
+                                          or env variable ACRO_FILE
   - -a, --acro <acro_column>              the column with the acronyms [default: 1]  
+                                          or env variable ACRO_COLUMN
   - -d, --definition <definition_column>  the column with the definitions [default: 2]  
+                                          or env variable DEFINITION_COLUMN
   - -h, --help                            Print help information  
   - -V, --version                         Print version information  
 
 ## TODO
-- [ ] Setting in env variables
+- [x] Setting in env variables
 - [ ] Header selector
 - [ ] Separator selector
 - [ ] Unit tests

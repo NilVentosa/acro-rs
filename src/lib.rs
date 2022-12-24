@@ -4,6 +4,7 @@ use std::{
     error::Error,
     io::{self, BufRead, BufReader},
 };
+use std::env;
 
 #[derive(Debug)]
 pub struct Config {
@@ -41,7 +42,6 @@ pub fn get_args() -> MyResult<Config> {
             Arg::new("file")
                 .short('f')
                 .long("file")
-                .required(true)
                 .help("the csv file with the acronyms and definitions"),
         )
         .arg(
@@ -49,24 +49,49 @@ pub fn get_args() -> MyResult<Config> {
                 .short('a')
                 .long("acro")
                 .help("the column with the acronyms")
-                .value_parser(clap::value_parser!(usize))
-                .default_value("1"),
+                .value_parser(clap::value_parser!(usize)),
         )
         .arg(
             Arg::new("definition_column")
                 .short('d')
                 .long("definition")
                 .help("the column with the definitions")
-                .value_parser(clap::value_parser!(usize))
-                .default_value("2"),
+                .value_parser(clap::value_parser!(usize)),
         )
         .get_matches();
 
+    let mut file: String = "".to_string();
+    if let Some(f) = matches.get_one::<String>("file") {
+        file = f.to_string(); 
+    } else if let Ok(f) = env::var("ACRO_FILE") {
+        file = f;
+    } else {
+        eprintln!("File should be specified in argument -f or in env variable ACRO_FILE");
+    }
+
+    let mut acro_column: usize = 0;
+    if let Some(a) = matches.get_one::<usize>("acro_column") {
+        acro_column = a.to_owned() - 1; 
+    } else if let Ok(a) = env::var("ACRO_COLUMN") {
+        if let Ok(a) =  a.parse::<usize>() {
+            acro_column = a - 1;
+        }
+    } 
+
+    let mut definition_column: usize = 1;
+    if let Some(d) = matches.get_one::<usize>("definition_column") {
+        definition_column = d.to_owned() - 1; 
+    } else if let Ok(d) = env::var("DEFINITION_COLUMN") {
+        if let Ok(d) =  d.parse::<usize>() {
+            definition_column = d - 1;
+        }
+    } 
+
     Ok(Config {
         acronym: matches.get_one::<String>("acronym").unwrap().to_string(),
-        file: matches.get_one::<String>("file").unwrap().to_string(),
-        acro_column: *matches.get_one::<usize>("acro_column").unwrap() - 1,
-        definition_column: *matches.get_one::<usize>("definition_column").unwrap() - 1,
+        file,
+        acro_column,
+        definition_column,
     })
 }
 
