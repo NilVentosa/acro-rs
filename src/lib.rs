@@ -65,16 +65,16 @@ pub fn get_args() -> MyResult<Config> {
     Ok(Config {
         acronym: matches.get_one::<String>("acronym").unwrap().to_string(),
         file: matches.get_one::<String>("file").unwrap().to_string(),
-        acro_column: *matches.get_one::<usize>("acro_column").unwrap(),
-        definition_column: *matches.get_one::<usize>("definition_column").unwrap(),
+        acro_column: *matches.get_one::<usize>("acro_column").unwrap() - 1,
+        definition_column: *matches.get_one::<usize>("definition_column").unwrap() - 1,
     })
 }
 
 pub fn run(config: Config) -> MyResult<()> {
-    let entries = get_entries_from_file(&config);
-    let other_entries = find_matching_entries(&entries, config.acronym);
+    let all_entries = get_entries_from_file(&config);
+    let matching_entries = find_matching_entries(&all_entries, config.acronym);
 
-    for entry in other_entries {
+    for entry in matching_entries {
         entry.print();
     }
 
@@ -83,9 +83,9 @@ pub fn run(config: Config) -> MyResult<()> {
 
 fn find_matching_entries(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
     let matching = find_exact_match(entries, acro.clone());
-    
+
     if matching.is_empty() {
-        return find_partial_match(entries, acro)
+        return find_partial_match(entries, acro);
     }
     matching
 }
@@ -93,11 +93,11 @@ fn find_matching_entries(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
 fn find_exact_match(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
     let mut matching = Vec::new();
 
-    for thing in entries {
-        if thing.acronym.to_uppercase() == acro.to_uppercase() {
-            matching.push(Entry{
-                acronym: thing.acronym.clone(),
-                definition: thing.definition.clone()
+    for entry in entries {
+        if entry.acronym.to_uppercase() == acro.to_uppercase() {
+            matching.push(Entry {
+                acronym: entry.acronym.clone(),
+                definition: entry.definition.clone(),
             });
         }
     }
@@ -108,15 +108,14 @@ fn find_exact_match(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
 fn find_partial_match(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
     let mut matching = Vec::new();
 
-    for thing in entries {
-        if thing.acronym.to_uppercase().contains(&acro.to_uppercase()) {
-            matching.push(Entry{
-                acronym: thing.acronym.clone(),
-                definition: thing.definition.clone()
+    for entry in entries {
+        if entry.acronym.to_uppercase().contains(&acro.to_uppercase()) {
+            matching.push(Entry {
+                acronym: entry.acronym.clone(),
+                definition: entry.definition.clone(),
             });
         }
     }
-
     matching
 }
 
@@ -130,15 +129,14 @@ fn get_entries_from_file(config: &Config) -> Vec<Entry> {
                 .has_headers(false)
                 .from_reader(file);
 
-            for record in reader.records() {
-                let record = record.unwrap();
-                let acronym = record.get(config.acro_column - 1);
-                let definition = record.get(config.definition_column - 1);
-
-                if acronym.is_some() && definition.is_some() {
+            for record in reader.records().flatten() {
+                if let (Some(acronym), Some(definition)) = (
+                    record.get(config.acro_column),
+                    record.get(config.definition_column),
+                ) {
                     entries.push(Entry {
-                        acronym: acronym.unwrap().to_string(),
-                        definition: definition.unwrap().to_string(),
+                        acronym: acronym.to_string(),
+                        definition: definition.to_string(),
                     });
                 }
             }

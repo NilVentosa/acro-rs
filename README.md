@@ -18,3 +18,5 @@ Options:
 - [ ] Header selector
 - [ ] Separator selector
 - [ ] Unit tests
+- [ ] Column for longer definition
+- [ ] Colors
