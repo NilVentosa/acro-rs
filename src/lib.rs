@@ -14,6 +14,7 @@ pub struct Config {
     acro_column: usize,
     definition_column: usize,
     color: bool,
+    header: bool,
 }
 
 pub fn get_args() -> Result<Config, Box<dyn Error>> {
@@ -46,6 +47,13 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
                 .help("the column with the definitions, can be set with env variable DEFINITION_COLUMN, defaults to 2")
                 .value_parser(clap::value_parser!(usize)),
         )
+        .arg(
+            Arg::new("header")
+                .short('H')
+                .long("header")
+                .action(ArgAction::SetTrue)
+                .help("flag if there is a header line"),
+            )
         .arg(
             Arg::new("color")
                 .short('c')
@@ -82,6 +90,12 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
         }
     }
 
+    let header: bool = if matches.get_flag("header") {
+        true
+    } else {
+        env::var("ACRO_HEADER").is_ok()
+    };
+
     let color: bool = if matches.get_flag("color") {
         true
     } else {
@@ -94,6 +108,7 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
         acro_column,
         definition_column,
         color,
+        header,
     })
 }
 
@@ -123,7 +138,6 @@ impl Entry {
         }
     }
 }
-
 
 fn find_matching_entries(entries: &Vec<Entry>, acro: &str) -> Vec<Entry> {
     let matching = find_exact_match(entries, acro);
@@ -170,7 +184,7 @@ fn get_entries_from_file(config: &Config) -> Vec<Entry> {
         Err(err) => eprintln!("Failed to open {}: {}", config.file, err),
         Ok(file) => {
             let mut reader = csv::ReaderBuilder::new()
-                .has_headers(false)
+                .has_headers(config.header)
                 .from_reader(file);
 
             for record in reader.records().flatten() {

@@ -6,8 +6,10 @@ const PRG: &str = "acro";
 const EMPTY: &str = "tests/inputs/empty.csv";
 const DEFAULT_COLUMNS_FILE: &str = "tests/inputs/def.csv";
 const DIFFERENT_COLUMNS_FILE: &str = "tests/inputs/diff.csv";
+const WITH_HEADER_FILE: &str = "tests/inputs/with_header.csv";
 
-const NATO_RESULT: &str = "- NATO: North Atlantic Treaty Organization\n";
+const NATO_RESULT: &str = " NATO: North Atlantic Treaty Organization\n";
+const HEADER: &str = " acronym: definition";
 const NATO_ACR: &str = "NAto";
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -73,6 +75,22 @@ fn all_arguments() -> TestResult {
     )
 }
 
+#[test]
+fn test_with_header() -> TestResult {
+    run_acro(
+        &["a", "-f", WITH_HEADER_FILE, "-H"],
+        String::from(NATO_RESULT),
+    )
+}
+
+#[test]
+fn test_with_header_but_command_without() -> TestResult {
+    run_acro(
+        &["a", "-f", WITH_HEADER_FILE],
+        String::from(format!("{}\n{}", HEADER, NATO_RESULT)),
+    )
+}
+
 fn run_acro(args: &[&str], expected: String) -> TestResult {
     Command::cargo_bin(PRG)?
         .args(args)
@@ -81,3 +99,4 @@ fn run_acro(args: &[&str], expected: String) -> TestResult {
         .stdout(expected);
     Ok(())
 }
+
