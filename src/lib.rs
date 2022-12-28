@@ -1,10 +1,10 @@
 use clap::{Arg, Command};
+use std::env;
 use std::fs::File;
 use std::{
     error::Error,
     io::{self, BufRead, BufReader},
 };
-use std::env;
 
 #[derive(Debug)]
 pub struct Config {
@@ -26,9 +26,7 @@ impl Entry {
     }
 }
 
-type MyResult<T> = Result<T, Box<dyn Error>>;
-
-pub fn get_args() -> MyResult<Config> {
+pub fn get_args() -> Result<Config, Box<dyn Error>> {
     let matches = Command::new("Acro")
         .author("Nil Ventosa")
         .version("0.1.0")
@@ -42,27 +40,27 @@ pub fn get_args() -> MyResult<Config> {
             Arg::new("file")
                 .short('f')
                 .long("file")
-                .help("the csv file with the acronyms and definitions"),
+                .help("the csv file with the acronyms and definitions, can be set with env variable ACRO_FILE"),
         )
         .arg(
             Arg::new("acro_column")
                 .short('a')
                 .long("acro")
-                .help("the column with the acronyms")
+                .help("the column with the acronyms, can be set with env variable ACRO_COLUMN, defaults to 1")
                 .value_parser(clap::value_parser!(usize)),
         )
         .arg(
             Arg::new("definition_column")
                 .short('d')
                 .long("definition")
-                .help("the column with the definitions")
+                .help("the column with the definitions, can be set with env variable DEFINITION_COLUMN, defaults to 2")
                 .value_parser(clap::value_parser!(usize)),
         )
         .get_matches();
 
     let mut file: String = "".to_string();
     if let Some(f) = matches.get_one::<String>("file") {
-        file = f.to_string(); 
+        file = f.to_string();
     } else if let Ok(f) = env::var("ACRO_FILE") {
         file = f;
     } else {
@@ -71,21 +69,21 @@ pub fn get_args() -> MyResult<Config> {
 
     let mut acro_column: usize = 0;
     if let Some(a) = matches.get_one::<usize>("acro_column") {
-        acro_column = a.to_owned() - 1; 
+        acro_column = a.to_owned() - 1;
     } else if let Ok(a) = env::var("ACRO_COLUMN") {
-        if let Ok(a) =  a.parse::<usize>() {
+        if let Ok(a) = a.parse::<usize>() {
             acro_column = a - 1;
         }
-    } 
+    }
 
     let mut definition_column: usize = 1;
     if let Some(d) = matches.get_one::<usize>("definition_column") {
-        definition_column = d.to_owned() - 1; 
+        definition_column = d.to_owned() - 1;
     } else if let Ok(d) = env::var("DEFINITION_COLUMN") {
-        if let Ok(d) =  d.parse::<usize>() {
+        if let Ok(d) = d.parse::<usize>() {
             definition_column = d - 1;
         }
-    } 
+    }
 
     Ok(Config {
         acronym: matches.get_one::<String>("acronym").unwrap().to_string(),
@@ -95,7 +93,7 @@ pub fn get_args() -> MyResult<Config> {
     })
 }
 
-pub fn run(config: Config) -> MyResult<()> {
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let all_entries = get_entries_from_file(&config);
     let matching_entries = find_matching_entries(&all_entries, config.acronym);
 
@@ -170,9 +168,69 @@ fn get_entries_from_file(config: &Config) -> Vec<Entry> {
     entries
 }
 
-fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
+fn open(filename: &str) -> Result<Box<dyn BufRead>, Box<dyn Error>> {
     match filename {
         "-" => Ok(Box::new(BufReader::new(io::stdin()))),
         _ => Ok(Box::new(BufReader::new(File::open(filename)?))),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_entry_vec() -> Vec<Entry> {
+        Vec::from([
+            Entry {
+                acronym: String::from("NATO"),
+                definition: String::from("N A T O"),
+            },
+            Entry {
+                acronym: String::from("USA"),
+                definition: String::from("U S A"),
+            },
+        ])
+    }
+
+    #[test]
+    fn test_find_exact_match_found() {
+        let result = find_exact_match(&get_test_entry_vec(), "NATO".to_string());
+        assert_eq!(result.len(), 1);
+    }
+
+    #[test]
+    fn test_find_exact_match_nothing() {
+        let result = find_exact_match(&get_test_entry_vec(), "NAT".to_string());
+        assert_eq!(result.len(), 0);
+    }
+
+    #[test]
+    fn test_find_partial_match_nothing() {
+        let result = find_partial_match(&get_test_entry_vec(), "NATA".to_string());
+        assert_eq!(result.len(), 0);
+    }
+
+    #[test]
+    fn test_find_partial_match_two_results() {
+        let result = find_partial_match(&get_test_entry_vec(), "A".to_string());
+        assert_eq!(result.len(), 2);
+    }
+
+    #[test]
+    fn test_find_matching_entries_two_results() {
+        let result = find_matching_entries(&get_test_entry_vec(), "A".to_string());
+        assert_eq!(result.len(), 2);
+    }
+
+    #[test]
+    fn test_find_matching_entries_one_result() {
+        let result = find_matching_entries(&get_test_entry_vec(), "NATO".to_string());
+        assert_eq!(result.len(), 1);
+    }
+
+    #[test]
+    fn test_find_matching_entries_no_results() {
+        let result = find_matching_entries(&get_test_entry_vec(), "NATA".to_string());
+        assert_eq!(result.len(), 0);
     }
 }

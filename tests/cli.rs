@@ -29,6 +29,11 @@ fn empty() -> TestResult {
 }
 
 #[test]
+fn no_results() -> TestResult {
+    run_acro(&["noresult", "-f", DEFAULT_COLUMNS_FILE], String::from(""))
+}
+
+#[test]
 fn default_columns() -> TestResult {
     run_acro(
         &[NATO_ACR, "-f", DEFAULT_COLUMNS_FILE],
@@ -40,6 +45,14 @@ fn default_columns() -> TestResult {
 fn partial_match() -> TestResult {
     run_acro(
         &["NAT", "-f", DEFAULT_COLUMNS_FILE],
+        String::from(NATO_RESULT),
+    )
+}
+
+#[test]
+fn partial_match_2() -> TestResult {
+    run_acro(
+        &["AT", "-f", DEFAULT_COLUMNS_FILE],
         String::from(NATO_RESULT),
     )
 }
