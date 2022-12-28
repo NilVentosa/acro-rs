@@ -1,4 +1,5 @@
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
+use colored::Colorize;
 use std::env;
 use std::fs::File;
 use std::{
@@ -12,18 +13,7 @@ pub struct Config {
     file: String,
     acro_column: usize,
     definition_column: usize,
-}
-
-#[derive(Debug)]
-pub struct Entry {
-    acronym: String,
-    definition: String,
-}
-
-impl Entry {
-    fn print(&self) {
-        println!("- {}: {}", self.acronym, self.definition);
-    }
+    color: bool,
 }
 
 pub fn get_args() -> Result<Config, Box<dyn Error>> {
@@ -56,6 +46,13 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
                 .help("the column with the definitions, can be set with env variable DEFINITION_COLUMN, defaults to 2")
                 .value_parser(clap::value_parser!(usize)),
         )
+        .arg(
+            Arg::new("color")
+                .short('c')
+                .long("color")
+                .action(ArgAction::SetTrue)
+                .help("enables color output"),
+            )
         .get_matches();
 
     let mut file: String = "".to_string();
@@ -85,27 +82,51 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
         }
     }
 
+    let color: bool = if matches.get_flag("color") {
+        true
+    } else {
+        env::var("ACRO_COLOR").is_ok()
+    };
+
     Ok(Config {
         acronym: matches.get_one::<String>("acronym").unwrap().to_string(),
         file,
         acro_column,
         definition_column,
+        color,
     })
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let all_entries = get_entries_from_file(&config);
-    let matching_entries = find_matching_entries(&all_entries, config.acronym);
+    let matching_entries = find_matching_entries(&all_entries, &config.acronym);
 
     for entry in matching_entries {
-        entry.print();
+        entry.print(&config.color);
     }
 
     Ok(())
 }
 
-fn find_matching_entries(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
-    let matching = find_exact_match(entries, acro.clone());
+#[derive(Debug)]
+pub struct Entry {
+    acronym: String,
+    definition: String,
+}
+
+impl Entry {
+    fn print(&self, color: &bool) {
+        if *color {
+            println!(" {}: {}", self.acronym.bold().blue(), self.definition);
+        } else {
+            println!(" {}: {}", self.acronym, self.definition);
+        }
+    }
+}
+
+
+fn find_matching_entries(entries: &Vec<Entry>, acro: &str) -> Vec<Entry> {
+    let matching = find_exact_match(entries, acro);
 
     if matching.is_empty() {
         return find_partial_match(entries, acro);
@@ -113,7 +134,7 @@ fn find_matching_entries(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
     matching
 }
 
-fn find_exact_match(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
+fn find_exact_match(entries: &Vec<Entry>, acro: &str) -> Vec<Entry> {
     let mut matching = Vec::new();
 
     for entry in entries {
@@ -128,7 +149,7 @@ fn find_exact_match(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
     matching
 }
 
-fn find_partial_match(entries: &Vec<Entry>, acro: String) -> Vec<Entry> {
+fn find_partial_match(entries: &Vec<Entry>, acro: &str) -> Vec<Entry> {
     let mut matching = Vec::new();
 
     for entry in entries {
@@ -194,43 +215,43 @@ mod tests {
 
     #[test]
     fn test_find_exact_match_found() {
-        let result = find_exact_match(&get_test_entry_vec(), "NATO".to_string());
+        let result = find_exact_match(&get_test_entry_vec(), "NATO");
         assert_eq!(result.len(), 1);
     }
 
     #[test]
     fn test_find_exact_match_nothing() {
-        let result = find_exact_match(&get_test_entry_vec(), "NAT".to_string());
+        let result = find_exact_match(&get_test_entry_vec(), "NAT");
         assert_eq!(result.len(), 0);
     }
 
     #[test]
     fn test_find_partial_match_nothing() {
-        let result = find_partial_match(&get_test_entry_vec(), "NATA".to_string());
+        let result = find_partial_match(&get_test_entry_vec(), "NATA");
         assert_eq!(result.len(), 0);
     }
 
     #[test]
     fn test_find_partial_match_two_results() {
-        let result = find_partial_match(&get_test_entry_vec(), "A".to_string());
+        let result = find_partial_match(&get_test_entry_vec(), "A");
         assert_eq!(result.len(), 2);
     }
 
     #[test]
     fn test_find_matching_entries_two_results() {
-        let result = find_matching_entries(&get_test_entry_vec(), "A".to_string());
+        let result = find_matching_entries(&get_test_entry_vec(), "A");
         assert_eq!(result.len(), 2);
     }
 
     #[test]
     fn test_find_matching_entries_one_result() {
-        let result = find_matching_entries(&get_test_entry_vec(), "NATO".to_string());
+        let result = find_matching_entries(&get_test_entry_vec(), "NATO");
         assert_eq!(result.len(), 1);
     }
 
     #[test]
     fn test_find_matching_entries_no_results() {
-        let result = find_matching_entries(&get_test_entry_vec(), "NATA".to_string());
+        let result = find_matching_entries(&get_test_entry_vec(), "NATA");
         assert_eq!(result.len(), 0);
     }
 }

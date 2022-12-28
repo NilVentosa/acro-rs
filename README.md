@@ -13,6 +13,8 @@ Options:
                                           or env variable ACRO_COLUMN
   - -d, --definition <definition_column>  the column with the definitions [default: 2]  
                                           or env variable DEFINITION_COLUMN
+  - -c, --color                           when present the output has colors
+                                          or if env variable ACRO_COLOR exists
   - -h, --help                            Print help information  
   - -V, --version                         Print version information  
 
@@ -20,6 +22,6 @@ Options:
 - [x] Setting in env variables
 - [ ] Header selector
 - [ ] Separator selector
-- [ ] Unit tests
+- [x] Unit tests
 - [ ] Column for longer definition
-- [ ] Colors
+- [x] Colors
