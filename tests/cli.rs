@@ -7,6 +7,7 @@ const EMPTY: &str = "tests/inputs/empty.csv";
 const DEFAULT_COLUMNS_FILE: &str = "tests/inputs/def.csv";
 const DIFFERENT_COLUMNS_FILE: &str = "tests/inputs/diff.csv";
 const WITH_HEADER_FILE: &str = "tests/inputs/with_header.csv";
+const SEMICOLON_FILE: &str = "tests/inputs/semicolon.csv";
 
 const NATO_RESULT: &str = " NATO: North Atlantic Treaty Organization\n";
 const HEADER: &str = " acronym: definition";
@@ -88,6 +89,14 @@ fn test_with_header_but_command_without() -> TestResult {
     run_acro(
         &["a", "-f", WITH_HEADER_FILE],
         String::from(format!("{}\n{}", HEADER, NATO_RESULT)),
+    )
+}
+
+#[test]
+fn test_with_semicolons() -> TestResult {
+    run_acro(
+        &["NATO", "-f", SEMICOLON_FILE, "-D", ";"],
+        String::from(NATO_RESULT),
     )
 }
 

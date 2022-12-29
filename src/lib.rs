@@ -1,9 +1,9 @@
 use clap::{Arg, ArgAction, Command};
 use colored::Colorize;
-use std::env;
-use std::fs::File;
 use std::{
+    env,
     error::Error,
+    fs::File,
     io::{self, BufRead, BufReader},
 };
 
@@ -15,6 +15,7 @@ pub struct Config {
     definition_column: usize,
     color: bool,
     header: bool,
+    delimiter: char,
 }
 
 pub fn get_args() -> Result<Config, Box<dyn Error>> {
@@ -46,6 +47,13 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
                 .long("definition")
                 .help("the column with the definitions, can be set with env variable DEFINITION_COLUMN, defaults to 2")
                 .value_parser(clap::value_parser!(usize)),
+        )
+        .arg(
+            Arg::new("delimiter")
+                .short('D')
+                .long("delimiter")
+                .help("delimiter character between columns. Defaults to ','")
+                .value_parser(clap::value_parser!(char)),
         )
         .arg(
             Arg::new("header")
@@ -90,6 +98,15 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
         }
     }
 
+    let mut delimiter: char = ',';
+    if let Some(d) = matches.get_one::<char>("delimiter") {
+        delimiter = d.to_owned();
+    } else if let Ok(d) = env::var("ACRO_DELIMITER") {
+        if let Ok(d) = d.parse::<char>() {
+            delimiter = d;
+        }
+    }
+
     let header: bool = if matches.get_flag("header") {
         true
     } else {
@@ -109,6 +126,7 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
         definition_column,
         color,
         header,
+        delimiter,
     })
 }
 
@@ -185,6 +203,7 @@ fn get_entries_from_file(config: &Config) -> Vec<Entry> {
         Ok(file) => {
             let mut reader = csv::ReaderBuilder::new()
                 .has_headers(config.header)
+                .delimiter(config.delimiter as u8)
                 .from_reader(file);
 
             for record in reader.records().flatten() {

@@ -17,13 +17,14 @@ Options:
                                           or if env variable ACRO_COLOR exists  
   - -H, --header                          when present the first line is treated like a header  
                                           or if env variable ACRO_HEADER exists  
+  - -D, --delimiter                       the delimiter between columns [default: ',']
+                                          or env variable ACRO_DELIMITER
   - -h, --help                            Print help information  
   - -V, --version                         Print version information  
 
 ## TODO
 - [x] Setting in env variables
 - [x] Header selector
-- [ ] Separator selector
+- [x] Separator selector
 - [x] Unit tests
-- [ ] Column for longer definition
 - [x] Colors
