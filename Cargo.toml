@@ -2,6 +2,14 @@
 name = "acro"
 version = "0.1.0"
 edition = "2021"
+authors = ["Nil Ventosa <ventosa@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = "A tool to query csv files of acronyms"
+readme = "README.md"
+homepage = "https://github.com/nilventosa/acro-rs"
+repository = "https://github.com/nilventosa/acro-rs"
+keywords = ["cli", "search", "csv", "acronym", "query"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = "4.0.26"
