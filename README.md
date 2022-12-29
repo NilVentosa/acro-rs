@@ -8,13 +8,13 @@ Arguments:
   - ```<acronym>```  the acronym to query
 
 Options (short, long, env variable):
--  **-f, --file, ACRO_FILE <file>**  
+-  **-f, --file, ACRO_FILE \<file>**  
 _the csv file with the acronyms and definitions_  
 -  **-a, --acro, ACRO_COLUMN <acro_column>**             
 _the column with the acronyms [default: 1]_  
 -  **-d, --definition, DEFINITION_COLUMN <definition_column>**  
 _the column with the definitions [default: 2]_  
--  **-D, --delimiter, ACRO_DELIMITER <delimiter>**           
+-  **-D, --delimiter, ACRO_DELIMITER \<delimiter>**           
 _delimiter character between columns [default: ',']_  
 -  **-H, --header, ACRO_HEADER**                          
 _flag if there is a header line_  
