@@ -2,7 +2,13 @@
 This was done to help me query a csv file with acronyms and their meanings. But I guess it can be used for any csv file that has two columns of which you want to use one to get the other.
 
 ## Installation
+### With cargo
 ```cargo install acro```
+### With homebrew
+```
+brew tap nilventosa/acro
+brew install acro
+```
 
 ## Usage
 ```acro [OPTIONS] <acronym>```
