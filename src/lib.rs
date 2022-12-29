@@ -142,7 +142,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 #[derive(Debug)]
-pub struct Entry {
+struct Entry {
     acronym: String,
     definition: String,
 }
