@@ -1,30 +1,26 @@
 # acro-rs
-Helps query csv files of acronyms
+This was done to help me query a csv file with acronyms and their meanings. But I guess it can be used for any csv file that has two columns of which you want to use one to get the other.
 
-Usage: acro [OPTIONS] --file <file> [acronym]
+## Usage
+```acro [OPTIONS] <acronym>```
 
-Arguments:  
-- [acronym]  the acronym to query
+Arguments:
+  - ```<acronym>```  the acronym to query
 
-Options:  
-  - -f, --file <file>                     the csv file with the acronyms and definitions  
-                                          or env variable ACRO_FILE
-  - -a, --acro <acro_column>              the column with the acronyms [default: 1]  
-                                          or env variable ACRO_COLUMN
-  - -d, --definition <definition_column>  the column with the definitions [default: 2]  
-                                          or env variable DEFINITION_COLUMN  
-  - -c, --color                           when present the output has colors  
-                                          or if env variable ACRO_COLOR exists  
-  - -H, --header                          when present the first line is treated like a header  
-                                          or if env variable ACRO_HEADER exists  
-  - -D, --delimiter                       the delimiter between columns [default: ',']
-                                          or env variable ACRO_DELIMITER
-  - -h, --help                            Print help information  
-  - -V, --version                         Print version information  
-
-## TODO
-- [x] Setting in env variables
-- [x] Header selector
-- [x] Separator selector
-- [x] Unit tests
-- [x] Colors
+Options (short, long, env variable):
+-  **-f, --file, ACRO_FILE <file>**  
+_the csv file with the acronyms and definitions_  
+-  **-a, --acro, ACRO_COLUMN <acro_column>**             
+_the column with the acronyms [default: 1]_  
+-  **-d, --definition, DEFINITION_COLUMN <definition_column>**  
+_the column with the definitions [default: 2]_  
+-  **-D, --delimiter, ACRO_DELIMITER <delimiter>**           
+_delimiter character between columns [default: ',']_  
+-  **-H, --header, ACRO_HEADER**                          
+_flag if there is a header line_  
+-  **-c, --color, ACRO_COLOR**                           
+_enables color output_  
+-  **-h, --help**                            
+_Print help information_  
+-  **-V, --version**                         
+_Print version information_  
