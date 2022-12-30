@@ -21,7 +21,7 @@ pub struct Config {
 pub fn get_args() -> Result<Config, Box<dyn Error>> {
     let matches = Command::new("Acro")
         .author("Nil Ventosa")
-        .version("0.1.0")
+        .version("0.2.0")
         .about("Helps query csv files of acronyms")
         .arg(
             Arg::new("acronym")
@@ -67,7 +67,7 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
                 .short('c')
                 .long("color")
                 .action(ArgAction::SetTrue)
-                .help("enables color output"),
+                .help("disables color output"),
             )
         .get_matches();
 
@@ -114,9 +114,9 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
     };
 
     let color: bool = if matches.get_flag("color") {
-        true
+        false
     } else {
-        env::var("ACRO_COLOR").is_ok()
+        !env::var("ACRO_COLOR").is_ok()
     };
 
     Ok(Config {

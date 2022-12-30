@@ -28,7 +28,7 @@ _delimiter character between columns [default: ',']_
 -  **-H, --header, ACRO_HEADER**                          
 _flag if there is a header line_  
 -  **-c, --color, ACRO_COLOR**                           
-_enables color output_  
+_disables color output_  
 -  **-h, --help**                            
 _Print help information_  
 -  **-V, --version**                         
