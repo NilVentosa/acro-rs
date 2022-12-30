@@ -108,4 +108,3 @@ fn run_acro(args: &[&str], expected: String) -> TestResult {
         .stdout(expected);
     Ok(())
 }
-

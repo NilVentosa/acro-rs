@@ -8,7 +8,7 @@ use std::{
 };
 
 #[derive(Debug)]
-pub struct Config {
+struct Config {
     acronym: String,
     file: String,
     acro_column: usize,
@@ -18,10 +18,10 @@ pub struct Config {
     delimiter: char,
 }
 
-pub fn get_args() -> Result<Config, Box<dyn Error>> {
+fn get_args() -> Result<Config, Box<dyn Error>> {
     let matches = Command::new("Acro")
         .author("Nil Ventosa")
-        .version("0.2.0")
+        .version("0.3.0")
         .about("Helps query csv files of acronyms")
         .arg(
             Arg::new("acronym")
@@ -116,7 +116,7 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
     let color: bool = if matches.get_flag("color") {
         false
     } else {
-        !env::var("ACRO_COLOR").is_ok()
+        env::var("ACRO_COLOR").is_err()
     };
 
     Ok(Config {
@@ -130,7 +130,8 @@ pub fn get_args() -> Result<Config, Box<dyn Error>> {
     })
 }
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn run() -> Result<(), Box<dyn Error>> {
+    let config: Config = get_args()?;
     let all_entries = get_entries_from_file(&config);
     let matching_entries = find_matching_entries(&all_entries, &config.acronym);
 
